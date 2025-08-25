@@ -6,7 +6,7 @@
 
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const handler = async (req: NextApiResponse) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     const { content } = req.body;
 
@@ -28,7 +28,8 @@ const handler = async (req: NextApiResponse) => {
       });
 
       if (response.ok) {
-        res.status(201).json({ status: "Post created" });
+        const data = await response.json();
+        res.status(201).json({ status: "Post created", event_id: data.event_id });
       } else {
         const errorData = await response.json();
         res.status(response.status).json(errorData);

@@ -1,6 +1,8 @@
 
 
 
+
+
 package main
 
 import (
@@ -32,26 +34,83 @@ func handleEvent(c *gin.Context) {
 		return
 	}
 
-	// TODO: Validate signature and store event
+	// Basic validation - in production we'd validate the full schema
+	if _, ok := event["id"]; !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing event ID"})
+		return
+	}
+	if _, ok := event["kind"]; !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing event kind"})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "Event received"})
+	// Forward to indexer for processing
+	indexerURL := "http://localhost:3001/pvp/event"
+	resp, err := http.Post(indexerURL, "application/json", c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to forward event"})
+		return
+	}
+	defer resp.Body.Close()
+
+	// Return the indexer's response
+	var responseBody map[string]interface{}
+	if err := c.ShouldBindJSON(&responseBody); err == nil {
+		c.JSON(resp.StatusCode, responseBody)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"status": "Event received"})
+	}
 }
 
 func getEvent(c *gin.Context) {
 	eventID := c.Param("id")
 
-	// TODO: Fetch event from storage
+	// Forward to indexer for event retrieval
+	indexerURL := "http://localhost:3001/pvp/event/" + eventID
+	resp, err := http.Get(indexerURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch event"})
+		return
+	}
+	defer resp.Body.Close()
 
-	c.JSON(http.StatusOK, gin.H{"event_id": eventID})
+	// Return the indexer's response
+	var responseBody map[string]interface{}
+	if err := c.ShouldBindJSON(&responseBody); err == nil {
+		c.JSON(resp.StatusCode, responseBody)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"event_id": eventID})
+	}
 }
 
 func getFeed(c *gin.Context) {
 	algo := c.Query("algo")
 	cursor := c.Query("cursor")
 
-	// TODO: Get feed from indexer using selected algorithm bundle
+	// Forward to indexer for feed generation
+	indexerURL := "http://localhost:3001/pvp/feed"
+	queryParams := ""
+	if algo != "" {
+		queryParams += "&algo=" + algo
+	}
+	if cursor != "" {
+		queryParams += "&cursor=" + cursor
+	}
 
-	c.JSON(http.StatusOK, gin.H{"algorithm": algo, "cursor": cursor})
+	fullURL := indexerURL + queryParams
+	resp, err := http.Get(fullURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch feed"})
+		return
+	}
+	defer resp.Body.Close()
+
+	// Return the indexer's response
+	var responseBody map[string]interface{}
+	if err := c.ShouldBindJSON(&responseBody); err == nil {
+		c.JSON(resp.StatusCode, responseBody)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"algorithm": algo, "cursor": cursor})
+	}
 }
-
 
