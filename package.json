@@ -1,0 +1,18 @@
+{
+  "name": "polyverse",
+  "version": "1.0.0",
+  "description": "PolyVerse is a decentralized social + AI + payments super-app designed for multipolar representation and algorithmic choice. This project aims to build a resilient platform that resists centralized deboosting/censorship by design, empowers user-chosen ranking/moderation bundles, and is economically sustainable for independent operators.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
