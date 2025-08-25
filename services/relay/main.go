@@ -43,9 +43,17 @@ func handleEvent(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing event kind"})
 		return
 	}
+	if _, ok := event["sig"]; !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing signature"})
+		return
+	}
+
+	// TODO: Add proper signature validation here
+
+	log.Printf("Received valid event: %v", event)
 
 	// Forward to indexer for processing
-	indexerURL := "http://localhost:3001/pvp/event"
+	indexerURL := "http://localhost:3010/pvp/event"
 	resp, err := http.Post(indexerURL, "application/json", c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to forward event"})
@@ -66,7 +74,7 @@ func getEvent(c *gin.Context) {
 	eventID := c.Param("id")
 
 	// Forward to indexer for event retrieval
-	indexerURL := "http://localhost:3001/pvp/event/" + eventID
+	indexerURL := "http://localhost:3010/pvp/event/" + eventID
 	resp, err := http.Get(indexerURL)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch event"})
@@ -88,7 +96,7 @@ func getFeed(c *gin.Context) {
 	cursor := c.Query("cursor")
 
 	// Forward to indexer for feed generation
-	indexerURL := "http://localhost:3001/pvp/feed"
+	indexerURL := "http://localhost:3010/pvp/feed"
 	queryParams := ""
 	if algo != "" {
 		queryParams += "&algo=" + algo

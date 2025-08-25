@@ -46,7 +46,7 @@ async function seedDemoData() {
     console.log("Creating demo posts...");
 
     for (const post of demoPosts) {
-      const response = await fetch('http://localhost:3001/pvp/event', {
+      const response = await fetch('http://localhost:3010/pvp/event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(post)

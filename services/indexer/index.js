@@ -92,8 +92,9 @@ fastify.post('/labels', async (request, reply) => {
 // Start the indexer service
 const startIndexer = async () => {
   try {
-    await fastify.listen({ port: 3001 });
-    console.log('Indexer listening on http://localhost:3001');
+    const port = process.env.PORT || 3002;
+    await fastify.listen({ port: port });
+    console.log(`Indexer listening on http://localhost:${port}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
