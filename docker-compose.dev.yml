@@ -9,70 +9,81 @@
 
 
 
+
+
+
+
 version: '3.8'
 
 services:
-  # IPFS node for storage
   ipfs:
     image: ipfs/go-ipfs:v0.19.0
     ports:
       - "5001:5001"
+      - "4001:4001"
       - "8080:8080"
     volumes:
       - ./data/ipfs:/data/ipfs
 
-  # Anvil EVM testnet for smart contracts
   anvil:
     image: ghcr.io/foundry-rs/foundry:v0.2.1
-    command: anvil --fork-url https://base-sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID
+    command: anvil --fork-url https://sepolia.base.org --block-time 5
     ports:
       - "8545:8545"
 
-  # Coordinator service
+  daemon1:
+    build:
+      context: ./daemon
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_ID=1
+      - COORDINATOR_URL=http://coordinator:3001
+
+  daemon2:
+    build:
+      context: ./daemon
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_ID=2
+      - COORDINATOR_URL=http://coordinator:3001
+
   coordinator:
     build:
       context: ./coordinator
       dockerfile: Dockerfile.dev
-    environment:
-      - NODE_ENV=development
-      - PORT=3001
-      - BASE_SEPOLIA_RPC_URL=http://anvil:8545
     ports:
       - "3001:3001"
-    depends_on:
-      - anvil
-
-  # Provider daemon instances
-  provider1:
-    build:
-      context: ./daemon
-      dockerfile: Dockerfile.dev
     environment:
-      - DAEMON_ID=provider1
-      - COORDINATOR_URL=http://coordinator:3001
-    depends_on:
-      - coordinator
+      - IPFS_API=http://ipfs:5001
+      - CHAIN_RPC=http://anvil:8545
 
-  # Provider daemon instances
-  provider2:
-    build:
-      context: ./daemon
-      dockerfile: Dockerfile.dev
-    environment:
-      - DAEMON_ID=provider2
-      - COORDINATOR_URL=http://coordinator:3001
-    depends_on:
-      - coordinator
-
-  # Verifier service
   verifier:
     build:
       context: ./verifier
       dockerfile: Dockerfile.dev
-    environment:
-      - VERIFIER_COORDINATOR_URL=http://coordinator:3001
     depends_on:
       - coordinator
+
+  cli:
+    build:
+      context: ./cli
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/workspace/opengrid
+    command: /bin/sh -c "sleep infinity"
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://coordinator:3001
+
+
+
+
 
 
 
