@@ -1,68 +1,83 @@
 
 
 
+
+
+
+
+
+
+
+
 version: '3.8'
 
 services:
-  # Local EVM testnet (Anvil)
-  anvil:
-    image: ghcr.io/foundry-rs/foundry:v0.2.0
-    command: anvil --host 0.0.0.0 --port 8545
-    ports:
-      - "8545:8545"
-    environment:
-      - RUST_LOG=info
-
   # IPFS node for storage
   ipfs:
-    image: ipfs/kubo:v0.20.0
+    image: ipfs/go-ipfs:v0.19.0
     ports:
       - "5001:5001"
       - "8080:8080"
     volumes:
-      - .tmp/ipfs:/data/ipfs
+      - ./data/ipfs:/data/ipfs
+
+  # Anvil EVM testnet for smart contracts
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:v0.2.1
+    command: anvil --fork-url https://base-sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID
+    ports:
+      - "8545:8545"
 
   # Coordinator service
   coordinator:
     build:
       context: ./coordinator
       dockerfile: Dockerfile.dev
-    ports:
-      - "3001:3001"
     environment:
       - NODE_ENV=development
-      - RPC_URL=http://anvil:8545
+      - PORT=3001
+      - BASE_SEPOLIA_RPC_URL=http://anvil:8545
+    ports:
+      - "3001:3001"
+    depends_on:
+      - anvil
 
   # Provider daemon instances
   provider1:
     build:
       context: ./daemon
       dockerfile: Dockerfile.dev
+    environment:
+      - DAEMON_ID=provider1
+      - COORDINATOR_URL=http://coordinator:3001
     depends_on:
       - coordinator
-    environment:
-      - PROVIDER_ID=provider1
-      - COORDINATOR_URL=http://coordinator:3001
 
-  # Second provider for redundancy
+  # Provider daemon instances
   provider2:
     build:
       context: ./daemon
       dockerfile: Dockerfile.dev
+    environment:
+      - DAEMON_ID=provider2
+      - COORDINATOR_URL=http://coordinator:3001
     depends_on:
       - coordinator
-    environment:
-      - PROVIDER_ID=provider2
-      - COORDINATOR_URL=http://coordinator:3001
 
   # Verifier service
   verifier:
     build:
       context: ./verifier
       dockerfile: Dockerfile.dev
+    environment:
+      - VERIFIER_COORDINATOR_URL=http://coordinator:3001
     depends_on:
       - coordinator
-    environment:
-      - COORDINATOR_URL=http://coordinator:3001
+
+
+
+
+
+
 
 
