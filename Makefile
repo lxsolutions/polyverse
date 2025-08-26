@@ -9,73 +9,85 @@
 
 
 
-# OpenGrid Makefile
 
-.PHONY: all dev demo clean build test lint help deploy
 
-# Environment variables
-export DOCKER_BUILDKIT=1
-export COMPOSE_DOCKER_CLI_BUILD=1
 
-all: help
 
-help:
-	@echo "Usage:"
-	@echo "  make dev        - Start local development environment"
-	@echo "  make demo       - Run example job through the system"
-	@echo "  make clean      - Clean up generated files"
-	@echo "  make build      - Build all components"
-	@echo "  make test       - Run tests for all components"
-	@echo "  make lint       - Lint codebase"
-	@echo "  make deploy     - Deploy smart contracts to Base Sepolia"
+# OpenGrid Project Makefile
 
-# Local development environment
+.PHONY: all build test lint dev demo clean deploy push docs
+
+all: build
+
+build:
+	@echo "Building all components..."
+	$(MAKE) -C daemon build
+	$(MAKE) -C coordinator build
+	$(MAKE) -C contracts build
+	$(MAKE) -C cli build
+	$(MAKE) -C ui build
+	$(MAKE) -C verifier build
+
+test:
+	@echo "Running tests for all components..."
+	$(MAKE) -C daemon test
+	$(MAKE) -C coordinator test
+	$(MAKE) -C contracts test
+	$(MAKE) -C cli test
+	$(MAKE) -C ui test
+	$(MAKE) -C verifier test
+
+lint:
+	@echo "Linting all components..."
+	$(MAKE) -C daemon lint
+	$(MAKE) -C coordinator lint
+	$(MAKE) -C contracts lint
+	$(MAKE) -C cli lint
+	$(MAKE) -C ui lint
+	$(MAKE) -C verifier lint
+
 dev:
-	@echo "Starting local development environment..."
-	docker-compose -f docker-compose.dev.yml up --build --remove-orphans
+	@echo "Starting development environment..."
+	docker-compose -f docker-compose.dev.yml up --build
 
-# Demo mode (runs example jobs)
-demo: dev
-	@sleep 5 && \
-	echo "Running demo..." && \
+demo:
+	@echo "Running demo scenario..."
+	make dev &
+	sleep 30 # Wait for services to start
 	opengrid/cli/og submit examples/sdxl-generate/job.yaml
 
-# Clean up all containers and volumes
 clean:
-	docker-compose down -v --remove-orphans
-	rm -rf ./daemon/target
-	rm -rf ./coordinator/dist
-	rm -rf ./verifier/bin
-	rm -rf ./ui/.next
-	rm -rf .tmp
+	@echo "Cleaning build artifacts..."
+	$(MAKE) -C daemon clean
+	$(MAKE) -C coordinator clean
+	$(MAKE) -C contracts clean
+	$(MAKE) -C cli clean
+	$(MAKE) -C ui clean
+	$(MAKE) -C verifier clean
 
-# Build all components
-build:
-	@echo "Building daemon (Rust)..."
-	(cd daemon && cargo build --release)
-	@echo "Building coordinator (TypeScript)..."
-	(cd coordinator && npm install && npm run build)
-	@echo "Building verifier (Go)..."
-	(cd verifier && go build -o bin/verifier)
-	@echo "Building UI..."
-	(cd ui && npm install && npm run build)
-
-# Lint codebase
-lint:
-	@echo "Linting codebase..."
-	find . -name "*.py" -exec pylint {} \;
-	find . -name "*.rs" -exec rustfmt --check {} \;
-	find . -name "*.ts" -exec eslint {} \;
-
-# Run tests
-test: lint
-	@echo "Running tests..."
-	pytest opengrid/cli/tests/
-	cargo test --manifest-path daemon/Cargo.toml
-
-# Deploy contracts to Base Sepolia
 deploy:
-	cd contracts && forge script Scripts/Deploy.s.sol --rpc-url $(BASE_SEPOLIA_RPC_URL) --private-key $(DEPLOYER_PRIVATE_KEY)
+	@echo "Deploying to production..."
+	docker-compose up --build -d
+
+push:
+	@echo "Pushing Docker images to registry..."
+	docker push opengrid/daemon:latest
+	docker push opengrid/coordinator:latest
+	docker push opengrid/contracts:latest
+	docker push opengrid/cli:latest
+	docker push opengrid/ui:latest
+	docker push opengrid/verifier:latest
+
+docs:
+	@echo "Generating documentation..."
+	pandoc docs/*.md -o docs/opengrid-docs.pdf
+
+
+
+
+
+
+
 
 
 
