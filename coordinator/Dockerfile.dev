@@ -7,21 +7,25 @@
 
 
 
-# Development Dockerfile for OpenGrid Coordinator
-FROM node:18-alpine
+
+
+# Coordinator Development Container
+
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
-
-RUN npm install -g typescript ts-node
-RUN npm install
-
 COPY . .
+
+RUN npm install && \
+    npm run build
 
 EXPOSE 3001
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
+
+
+
 
 
 
