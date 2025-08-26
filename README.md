@@ -106,6 +106,18 @@ MIT License - see LICENSE file.
 
 ## Quickstart Demo
 
+### Run the Full Stack Locally
+
+```bash
+# Start all services (IPFS, EVM chain, providers, coordinator)
+make dev
+
+# Submit an example LLM inference job
+opengrid/cli/og submit examples/llm-infer/job.yaml
+
+# Check job status and view results in UI at http://localhost:3001
+```
+
 ![Demo GIF](docs/demo.gif)
 
 
