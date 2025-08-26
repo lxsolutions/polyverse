@@ -1,0 +1,68 @@
+
+
+
+version: '3.8'
+
+services:
+  # Local EVM testnet (Anvil)
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:v0.2.0
+    command: anvil --host 0.0.0.0 --port 8545
+    ports:
+      - "8545:8545"
+    environment:
+      - RUST_LOG=info
+
+  # IPFS node for storage
+  ipfs:
+    image: ipfs/kubo:v0.20.0
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - .tmp/ipfs:/data/ipfs
+
+  # Coordinator service
+  coordinator:
+    build:
+      context: ./coordinator
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - RPC_URL=http://anvil:8545
+
+  # Provider daemon instances
+  provider1:
+    build:
+      context: ./daemon
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - coordinator
+    environment:
+      - PROVIDER_ID=provider1
+      - COORDINATOR_URL=http://coordinator:3001
+
+  # Second provider for redundancy
+  provider2:
+    build:
+      context: ./daemon
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - coordinator
+    environment:
+      - PROVIDER_ID=provider2
+      - COORDINATOR_URL=http://coordinator:3001
+
+  # Verifier service
+  verifier:
+    build:
+      context: ./verifier
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - coordinator
+    environment:
+      - COORDINATOR_URL=http://coordinator:3001
+
+

@@ -1,0 +1,23 @@
+
+apiVersion: v1
+kind: Job
+name: llm-inference-sample
+resources:
+  gpu: 0  # CPU-only for this example
+  vram_gb: 0
+  cpu_cores: 2
+  ram_gb: 4
+  disk_gb: 5
+privacy:
+  mode: "public"
+image: "ghcr.io/opengrid/examples/llm-infer:latest"
+cmd: ["python", "inference.py", "--prompt", "What is the capital of France?"]
+inputs: {}
+outputs:
+  to: ipfs
+billing:
+  max_price_per_hour_usd: 0.50
+  payment: "stream"
+  verifier: quorum
+  redundancy: 2
+  deadline_s: 600

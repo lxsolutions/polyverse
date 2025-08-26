@@ -1,0 +1,29 @@
+
+
+
+
+
+
+
+
+
+# Development Dockerfile for OpenGrid Coordinator
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+RUN npm install -g typescript ts-node
+RUN npm install
+
+COPY . .
+
+EXPOSE 3001
+
+CMD ["npm", "start"]
+
+
+
+
+
