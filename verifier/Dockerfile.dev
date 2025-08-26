@@ -9,19 +9,20 @@
 
 
 
-# Development Dockerfile for OpenGrid Verifier
-FROM golang:1.20-alpine
+# Verifier Development Container
+
+FROM golang:1.20-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod ./
-RUN go mod download
-
 COPY . .
 
-EXPOSE 3002
+RUN go mod download && \
+    go build -o bin/verifier
 
-CMD ["go", "run", "main.go"]
+CMD ["./bin/verifier"]
+
+
 
 
 
