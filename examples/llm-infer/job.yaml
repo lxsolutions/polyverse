@@ -1,18 +1,22 @@
 
+
+
 apiVersion: v1
 kind: Job
-name: llm-inference-sample
+name: llama-inference-sample
 resources:
   gpu: 0  # CPU-only for this example
-  vram_gb: 0
-  cpu_cores: 2
-  ram_gb: 4
+  vram_gb: 2
+  cpu_cores: 4
+  ram_gb: 8
   disk_gb: 5
 privacy:
   mode: "public"
 image: "ghcr.io/opengrid/examples/llm-infer:latest"
-cmd: ["python", "inference.py", "--prompt", "What is the capital of France?"]
-inputs: {}
+cmd: ["python", "run.py", "--prompt", "Explain quantum computing in simple terms"]
+inputs:
+  artifacts:
+    - ipfs://Qm... # Model weights CIDs would go here
 outputs:
   to: ipfs
 billing:
@@ -21,3 +25,6 @@ billing:
   verifier: quorum
   redundancy: 2
   deadline_s: 600
+
+
+
