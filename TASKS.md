@@ -4,7 +4,7 @@
 ## M1 Milestone Tasks
 
 - [x] **M1-1**: Finalize PVP schema + Ed25519 in packages/pvp-sdk-js with tests
-- [ ] **M1-2**: Relay (Go) POST/GET/WS + signature verification + basic policy
+- [x] **M1-2**: Relay (Go) POST/GET/WS + signature verification + basic policy
 - [ ] **M1-3**: Indexer (TS/Fastify + Meilisearch) with cursoring
 - [ ] **M1-4**: Two feed bundles + /explain (time_decay_diversity, community_weighted)
 - [ ] **M1-5**: Web MVP: keys (dev-custodial + non-custodial), compose/reply, follow/like, bundle selector, profiles
