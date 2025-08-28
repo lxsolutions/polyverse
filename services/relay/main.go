@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lxsolutions/polyverse/services/relay/internal/pvp"
 )
 
 func main() {
@@ -28,29 +29,49 @@ func main() {
 }
 
 func handleEvent(c *gin.Context) {
-	var event map[string]interface{}
+	var event pvp.Event
 	if err := c.ShouldBindJSON(&event); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event format"})
 		return
 	}
 
-	// Basic validation - in production we'd validate the full schema
-	if _, ok := event["id"]; !ok {
+	// Basic validation
+	if event.ID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing event ID"})
 		return
 	}
-	if _, ok := event["kind"]; !ok {
+	if event.Kind == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing event kind"})
 		return
 	}
-	if _, ok := event["sig"]; !ok {
+	if event.Sig == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing signature"})
 		return
 	}
+	if event.AuthorDID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing author DID"})
+		return
+	}
 
-	// TODO: Add proper signature validation here
+	// Extract public key from DID and verify signature
+	publicKeyBase64, err := pvp.ExtractPublicKeyFromDID(event.AuthorDID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author DID format"})
+		return
+	}
 
-	log.Printf("Received valid event: %v", event)
+	isValid, err := pvp.VerifySignature(event, publicKeyBase64)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Signature verification failed"})
+		return
+	}
+
+	if !isValid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid signature"})
+		return
+	}
+
+	log.Printf("Received valid signed event: %s from %s", event.ID, event.AuthorDID)
 
 	// Forward to indexer for processing
 	indexerURL := "http://localhost:3010/pvp/event"
@@ -66,7 +87,7 @@ func handleEvent(c *gin.Context) {
 	if err := c.ShouldBindJSON(&responseBody); err == nil {
 		c.JSON(resp.StatusCode, responseBody)
 	} else {
-		c.JSON(http.StatusOK, gin.H{"status": "Event received"})
+		c.JSON(http.StatusOK, gin.H{"status": "Event received and verified"})
 	}
 }
 
