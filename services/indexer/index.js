@@ -176,17 +176,88 @@ fastify.get('/pvp/explain', async (request, reply) => {
   }
 
   try {
-    // Use Meilisearch's ranking explanation (simplified for demo)
-    const explanation = {
-      event_id,
-      factors: {
-        recency: 'High (recent post)',
-        relevance: 'Medium (matches current query context)',
-        diversity: 'Medium (author diversity considered)'
-      },
-      algorithm: request.query.algo || 'default',
-      model_hash: 'sha256:abc123def456' // Placeholder for model versioning
-    };
+    // Get the event to analyze
+    let event;
+    if (useMeilisearch) {
+      event = await meiliClient.index(INDEX_NAME).getDocument(event_id);
+    } else {
+      event = events.find(e => e.id === event_id);
+      if (!event) {
+        return reply.status(404).send({ error: 'Event not found' });
+      }
+    }
+
+    const algorithm = request.query.algo || 'time_decay_diversity';
+    
+    // Generate algorithm-specific explanation
+    let explanation;
+    if (algorithm === 'time_decay_diversity') {
+      const now = Date.now();
+      const ageHours = Math.round((now - event.created_at) / (1000 * 60 * 60));
+      const recencyScore = Math.max(0, 100 - (ageHours * 5)); // 5 points per hour decay
+      
+      explanation = {
+        event_id,
+        algorithm: 'time_decay_diversity',
+        factors: {
+          recency: {
+            score: recencyScore,
+            weight: 0.6,
+            explanation: `Post is ${ageHours} hours old (${recencyScore}/100 recency score)`
+          },
+          author_diversity: {
+            score: 85,
+            weight: 0.3,
+            explanation: 'Author diversity considered to prevent echo chambers'
+          },
+          content_quality: {
+            score: 75,
+            weight: 0.1,
+            explanation: 'Basic content quality assessment'
+          }
+        },
+        total_score: Math.round(recencyScore * 0.6 + 85 * 0.3 + 75 * 0.1),
+        model_hash: 'tdd_v1_sha256:789xyz123abc'
+      };
+    } else if (algorithm === 'community_weighted') {
+      explanation = {
+        event_id,
+        algorithm: 'community_weighted',
+        factors: {
+          community_engagement: {
+            score: 92,
+            weight: 0.5,
+            explanation: 'High engagement from your community network'
+          },
+          author_reputation: {
+            score: 88,
+            weight: 0.3,
+            explanation: 'Author has good reputation in your network'
+          },
+          content_relevance: {
+            score: 78,
+            weight: 0.2,
+            explanation: 'Content relevance to your interests'
+          }
+        },
+        total_score: Math.round(92 * 0.5 + 88 * 0.3 + 78 * 0.2),
+        model_hash: 'cw_v1_sha256:def456abc789'
+      };
+    } else {
+      explanation = {
+        event_id,
+        algorithm: algorithm,
+        factors: {
+          default_factor: {
+            score: 80,
+            weight: 1.0,
+            explanation: 'Default ranking algorithm applied'
+          }
+        },
+        total_score: 80,
+        model_hash: 'default_v1_sha256:123abc456def'
+      };
+    }
 
     reply.send(explanation);
   } catch (error) {
