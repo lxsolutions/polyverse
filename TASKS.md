@@ -6,7 +6,7 @@
 - [x] **M1-1**: Finalize PVP schema + Ed25519 in packages/pvp-sdk-js with tests
 - [x] **M1-2**: Relay (Go) POST/GET/WS + signature verification + basic policy
 - [x] **M1-3**: Indexer (TS/Fastify + Meilisearch) with cursoring
-- [ ] **M1-4**: Two feed bundles + /explain (time_decay_diversity, community_weighted)
+- [x] **M1-4**: Two feed bundles + /explain (time_decay_diversity, community_weighted)
 - [ ] **M1-5**: Web MVP: keys (dev-custodial + non-custodial), compose/reply, follow/like, bundle selector, profiles
 - [ ] **M1-6**: Seed script: 20 demo users, 500 posts, multilingual content, labels, follows
 
