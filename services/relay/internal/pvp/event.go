@@ -20,6 +20,15 @@ type Event struct {
 	Sig       string                 `json:"sig"`
 }
 
+// VerificationData represents the canonical structure for signature verification
+type VerificationData struct {
+	Kind      string                 `json:"kind"`
+	CreatedAt int64                  `json:"created_at"`
+	AuthorDID string                 `json:"author_did"`
+	Body      map[string]interface{} `json:"body,omitempty"`
+	Refs      []interface{}          `json:"refs"` // Always include refs field, even when empty
+}
+
 // VerifySignature verifies the Ed25519 signature of a PVP event
 func VerifySignature(event Event, publicKeyBase64 string) (bool, error) {
 	// Decode the public key from base64
@@ -35,18 +44,13 @@ func VerifySignature(event Event, publicKeyBase64 string) (bool, error) {
 	}
 
 	// Create the canonical JSON for verification (same as signing process)
-	// We need to remove the sig and id fields for verification
-	verificationData := map[string]interface{}{
-		"kind":       event.Kind,
-		"created_at": event.CreatedAt,
-		"author_did": event.AuthorDID,
-	}
-
-	if event.Body != nil {
-		verificationData["body"] = event.Body
-	}
-	if event.Refs != nil {
-		verificationData["refs"] = event.Refs
+	// Use a struct to ensure consistent field ordering: kind, created_at, author_did, body, refs
+	verificationData := VerificationData{
+		Kind:      event.Kind,
+		CreatedAt: event.CreatedAt,
+		AuthorDID: event.AuthorDID,
+		Body:      event.Body,
+		Refs:      event.Refs,
 	}
 
 	// Convert to canonical JSON

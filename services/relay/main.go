@@ -152,11 +152,26 @@ func getFeed(c *gin.Context) {
 	defer resp.Body.Close()
 
 	// Return the indexer's response
-	var responseBody map[string]interface{}
-	if err := c.ShouldBindJSON(&responseBody); err == nil {
-		c.JSON(resp.StatusCode, responseBody)
-	} else {
-		c.JSON(http.StatusOK, gin.H{"algorithm": algo, "cursor": cursor})
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response body"})
+		return
 	}
+
+	// Try to parse as array first, then as object
+	var responseArray []interface{}
+	if err := json.Unmarshal(bodyBytes, &responseArray); err == nil {
+		c.JSON(resp.StatusCode, responseArray)
+		return
+	}
+
+	var responseObject map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &responseObject); err == nil {
+		c.JSON(resp.StatusCode, responseObject)
+		return
+	}
+
+	// If neither works, return the raw body
+	c.Data(resp.StatusCode, "application/json", bodyBytes)
 }
 

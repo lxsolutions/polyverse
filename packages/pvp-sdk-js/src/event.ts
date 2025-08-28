@@ -54,6 +54,7 @@ export async function signEvent(
   // Create a canonical JSON string for signing (without id field if it exists)
   const { id, ...eventWithoutId } = event;
   const data = JSON.stringify(eventWithoutId);
+  console.log('Data being signed:', data);
 
   // Generate ID as hash of signed content (without sig and id fields)
   const idValue = await generateId(data);

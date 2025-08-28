@@ -37,6 +37,7 @@ function signEvent(event, privateKey) {
         // Create a canonical JSON string for signing (without id field if it exists)
         const { id } = event, eventWithoutId = __rest(event, ["id"]);
         const data = JSON.stringify(eventWithoutId);
+        console.log('Data being signed:', data);
         // Generate ID as hash of signed content (without sig and id fields)
         const idValue = yield generateId(data);
         return Object.assign(Object.assign({}, event), { id: idValue, sig: yield (0, crypto_1.signData)(privateKey, data) });

@@ -10,7 +10,7 @@
 
 5. ✅ Two feed bundles + /explain (time_decay_diversity, community_weighted)
 
-6. ⏳ Web MVP: keys (dev-custodial + non-custodial), compose/reply, follow/like, bundle selector, profiles
+6. 🔄 Web MVP: keys (dev-custodial + non-custodial), compose/reply, follow/like, bundle selector, profiles
 
 7. ⏳ Seed script: 20 demo users, 500 posts, multilingual content, labels, follows
 

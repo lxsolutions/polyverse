@@ -5,11 +5,31 @@
 
 
 import { useState, useEffect } from 'react';
+import KeyManager from '../components/KeyManager';
+
+interface KeyPair {
+  publicKey: string;
+  privateKey: string;
+  did: string;
+}
+
+interface Event {
+  id: string;
+  kind: string;
+  created_at: number;
+  author_did: string;
+  body: {
+    text: string;
+  };
+  refs: any[];
+  sig: string;
+}
 
 const Home = () => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [newPost, setNewPost] = useState('');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('time_decay_diversity');
+  const [userKeys, setUserKeys] = useState<KeyPair | null>(null);
 
   // Fetch events from relay based on selected algorithm
   useEffect(() => {
@@ -21,10 +41,19 @@ const Home = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!userKeys) {
+      alert('Please generate or import keys first');
+      return;
+    }
+
     await fetch('/api/post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newPost })
+      body: JSON.stringify({ 
+        content: newPost,
+        privateKey: userKeys.privateKey,
+        did: userKeys.did
+      })
     });
 
     // Refresh events
@@ -38,6 +67,8 @@ const Home = () => {
   return (
     <div>
       <h1>PolyVerse Web Client</h1>
+
+      <KeyManager onKeyChange={setUserKeys} />
 
       <div className="algorithm-selection">
         <label htmlFor="algo-select">Feed Algorithm:</label>
