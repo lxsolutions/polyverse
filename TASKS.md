@@ -1,24 +1,31 @@
 
 # PolyVerse Task Tracker
 
-## M0 Milestone Tasks
-
-- [x] **M0-0**: Audit existing WIP in /workspace/polyverse and reconcile with plan
-- [x] **M0-1**: Scaffold/normalize monorepo & LICENSES (completed)
-- [x] **M0-2**: Docs: README, ARCHITECTURE, PROTOCOL, ROADMAP (completed)
-- [✅] **M0-3**: Implement PVP event schema + Ed25519 signing (pvp-sdk-js) (SDK implemented, needs testing)
-- [✅] **M0-4**: Relay service (choose Go or Rust) + POST/GET/WS endpoints (Go implementation started)
-- [✅] **M0-5**: Indexer (TS) + feed bundles + /explain (basic implementation exists)
-- [✅] **M0-6**: Web app (Next.js) keys/profiles/posts/feed + bundle selector (basic UI implemented)
-- [ ] **M0-7**: AI router + onboarding- & summarizer-agent (mock ok)
-- [✅] **M0-8**: Moderation v1: labeler API + client filters + registry (labeling endpoint exists)
-- [ ] **M0-9**: Payments v1: Lightning regtest tips + fee hooks
-- [ ] **M0-10**: Bridge-APub echo + mapping docs for AT/Nostr
-- [✅] **M0-11**: Infra: docker-compose + Meilisearch + Minio + NATS (docker-compose exists)
-- [x] **M0-12**: Seed script + acceptance demo path (seed.js implemented)
-- [ ] **M0-13**: CI pipelines (lint/test/build)
-- [✅] **M0-14**: Configure GitHub remote and push initial commit (needs completion)
-
 ## M1 Milestone Tasks
 
-[To be defined after M0 completion]
+- [x] **M1-1**: Finalize PVP schema + Ed25519 in packages/pvp-sdk-js with tests
+- [ ] **M1-2**: Relay (Go) POST/GET/WS + signature verification + basic policy
+- [ ] **M1-3**: Indexer (TS/Fastify + Meilisearch) with cursoring
+- [ ] **M1-4**: Two feed bundles + /explain (time_decay_diversity, community_weighted)
+- [ ] **M1-5**: Web MVP: keys (dev-custodial + non-custodial), compose/reply, follow/like, bundle selector, profiles
+- [ ] **M1-6**: Seed script: 20 demo users, 500 posts, multilingual content, labels, follows
+
+## M2 Milestone Tasks
+
+- [ ] **M2-1**: Moderation v1: labeler registry+API, client filters (keyword, mute/block, NSFW), signed appeals log format
+- [ ] **M2-2**: AI Mesh: services/ai-router (/chat,/summarize); agents/summarizer-agent and onboarding-agent
+- [ ] **M2-3**: Observability: OTel traces/logs for relay/indexer/ai-router
+
+## M3 Milestone Tasks
+
+- [ ] **M3-1**: Payments v1: Lightning regtest tips + fee hooks + .env.example
+- [ ] **M3-2**: Bridge-APub echo (Actor, inbox/outbox ↔ PVP post) + mapping docs for AT/Nostr
+
+## Development Experience
+
+- [x] **DX-1**: docker-compose with NATS, Meilisearch, MinIO, LND regtest; demo scripts
+- [ ] **DX-2**: CI (lint/test/build) + CODEOWNERS + PR checks
+
+## Documentation
+
+- [x] **DOCS-1**: Docs: ARCHITECTURE, PROTOCOL, MODERATION, AI_MESH, PAYMENTS, ROADMAP (update for M1–M3)
