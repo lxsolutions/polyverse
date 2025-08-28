@@ -6,6 +6,9 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
@@ -29,8 +32,16 @@ func main() {
 }
 
 func handleEvent(c *gin.Context) {
+	// Read the request body first before it gets consumed
+	bodyBytes, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+	
+	// Parse the event for validation
 	var event pvp.Event
-	if err := c.ShouldBindJSON(&event); err != nil {
+	if err := json.Unmarshal(bodyBytes, &event); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event format"})
 		return
 	}
@@ -74,8 +85,8 @@ func handleEvent(c *gin.Context) {
 	log.Printf("Received valid signed event: %s from %s", event.ID, event.AuthorDID)
 
 	// Forward to indexer for processing
-	indexerURL := "http://localhost:3010/pvp/event"
-	resp, err := http.Post(indexerURL, "application/json", c.Request.Body)
+	indexerURL := "http://localhost:3002/pvp/event"
+	resp, err := http.Post(indexerURL, "application/json", bytes.NewReader(bodyBytes))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to forward event"})
 		return
@@ -95,7 +106,7 @@ func getEvent(c *gin.Context) {
 	eventID := c.Param("id")
 
 	// Forward to indexer for event retrieval
-	indexerURL := "http://localhost:3010/pvp/event/" + eventID
+	indexerURL := "http://localhost:3002/pvp/event/" + eventID
 	resp, err := http.Get(indexerURL)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch event"})
@@ -117,16 +128,22 @@ func getFeed(c *gin.Context) {
 	cursor := c.Query("cursor")
 
 	// Forward to indexer for feed generation
-	indexerURL := "http://localhost:3010/pvp/feed"
+	indexerURL := "http://localhost:3002/pvp/feed"
 	queryParams := ""
 	if algo != "" {
-		queryParams += "&algo=" + algo
+		queryParams += "algo=" + algo
 	}
 	if cursor != "" {
-		queryParams += "&cursor=" + cursor
+		if queryParams != "" {
+			queryParams += "&"
+		}
+		queryParams += "cursor=" + cursor
 	}
 
-	fullURL := indexerURL + queryParams
+	fullURL := indexerURL
+	if queryParams != "" {
+		fullURL += "?" + queryParams
+	}
 	resp, err := http.Get(fullURL)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch feed"})
