@@ -1,33 +1,33 @@
 # Task List
 
-1. ✅ Audit existing WIP in /workspace/polyverse and reconcile with plan
+1. ✅ Audit current repo state vs plan and list gaps
 
-2. ✅ Scaffold/normalize monorepo & LICENSES
+2. ✅ Finalize PVP schema + Ed25519 in packages/pvp-sdk-js with tests
 
-3. ✅ Docs: README, ARCHITECTURE, PROTOCOL, ROADMAP
+3. ✅ Relay (Go) POST/GET/WS + signature verification + basic policy
 
-4. ✅ Implement PVP event schema + Ed25519 signing (pvp-sdk-js)
+4. ✅ Indexer (TS/Fastify + Meilisearch) with cursoring
 
-5. ⏳ Relay service (choose Go or Rust) + POST/GET/WS endpoints
+5. ✅ Two feed bundles + /explain (time_decay_diversity, community_weighted)
 
-6. 🔄 Indexer (TS) + feed bundles + /explain
+6. ⏳ Web MVP: keys (dev-custodial + non-custodial), compose/reply, follow/like, bundle selector, profiles
 
-7. 🔄 Web app (Next.js) keys/profiles/posts/feed + bundle selector
+7. ⏳ Seed script: 20 demo users, 500 posts, multilingual content, labels, follows
 
-8. ⏳ AI router + onboarding- & summarizer-agent (mock ok)
+8. ⏳ Moderation v1: labeler registry+API, client filters (keyword, mute/block, NSFW), signed appeals log format
 
-9. 🔄 Moderation v1: labeler API + client filters + registry
+9. ⏳ AI Mesh: services/ai-router (/chat,/summarize); agents/summarizer-agent and onboarding-agent
 
-10. ⏳ Payments v1: Lightning regtest tips + fee hooks
+10. ⏳ Observability: OTel traces/logs for relay/indexer/ai-router
 
-11. ⏳ Bridge-APub echo + mapping docs for AT/Nostr
+11. ⏳ Payments v1: Lightning regtest tips + fee hooks + .env.example
 
-12. 🔄 Infra: docker-compose + Meilisearch + Minio + NATS
+12. ⏳ Bridge-APub echo (Actor, inbox/outbox ↔ PVP post) + mapping docs for AT/Nostr
 
-13. ✅ Seed script + acceptance demo path
+13. ✅ docker-compose with NATS, Meilisearch, MinIO, LND regtest; demo scripts
 
-14. ⏳ CI pipelines (lint/test/build)
+14. ⏳ CI (lint/test/build) + CODEOWNERS + PR checks
 
-15. 🔄 Configure GitHub remote and push initial commit
+15. ✅ Docs: ARCHITECTURE, PROTOCOL, MODERATION, AI_MESH, PAYMENTS, ROADMAP (update for M1–M3)
 
 
