@@ -3,6 +3,7 @@
   "name": "@polyverse/schemas",
   "version": "1.0.0",
   "description": "Shared schemas and validation for PolyVerse",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
