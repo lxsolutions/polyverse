@@ -17,6 +17,9 @@ polyverse/
     bridge-atproto/  # AT Protocol bridge stub
     bridge-nostr/    # Nostr bridge stub
     ai-router/       # AI routing service with microagents (Python/TS)
+    opengrid/        # OpenGrid decentralized data mesh (folded from lxsolutions/opengrid)
+    aegisgov/        # AegisGov identity and governance service (folded from lxsolutions/aegisgov)
+    truthfoundry/    # TruthFoundry verification and fact-checking service (folded from lxsolutions/truthfoundry)
   agents/            # Microagent implementations
     onboarding-agent/
     summarizer-agent/
