@@ -1,81 +1,108 @@
 
-# PolyVerse — A Decentralized “Everything App”
+# Polyverse Monorepo
 
-PolyVerse is a decentralized social + AI + payments super-app designed for multipolar representation and algorithmic choice. This project aims to build a resilient platform that resists centralized deboosting/censorship by design, empowers user-chosen ranking/moderation bundles, and is economically sustainable for independent operators.
+A consolidated monorepo containing all Polyverse projects and services.
 
-## Project Structure
+## 🏗️ Monorepo Structure
 
 ```
 polyverse/
-  apps/              # Client applications
-    web/             # Next.js web client
-    mobile/          # React Native mobile app (coming soon)
-  services/          # Core backend services
-    relay/           # Relay/hub service (Go/Rust)
-    indexer/         # Search and indexing service (TypeScript/Node, Fastify)
-    bridge-apub/     # ActivityPub bridge stub
-    bridge-atproto/  # AT Protocol bridge stub
-    bridge-nostr/    # Nostr bridge stub
-    ai-router/       # AI routing service with microagents (Python/TS)
-  agents/            # Microagent implementations
-    onboarding-agent/
-    summarizer-agent/
-    moderation-agent/
-    ranking-agent/
-    payments-agent/
-    bridge-agent/
-    devops-agent/
-  packages/          # Shared libraries and SDKs
-    pvp-sdk-js/      # JavaScript SDK for PolyVerse Protocol
-    schemas/         # Data schemas and protocol definitions
-  infra/             # Infrastructure as Code
-    docker-compose.yml
-    k8s/             # Kubernetes Helm charts
-    terraform/
-  docs/              # Documentation
+├── apps/
+│   └── polyverse/          # Main Polyverse frontend application
+├── services/
+│   └── opengrid/           # OpenGrid server/powerhouse
+├── packages/
+│   ├── truth-archive/      # TruthFoundry archive builder
+│   ├── aegisgov/           # AegisGov policy/compliance tools
+│   ├── opengrid-client/    # OpenGrid TypeScript client SDK
+│   └── truth-archive-js/   # Truth Archive JavaScript client
+├── infra/
+│   ├── docker/             # Docker configurations
+│   └── ci/                 # CI/CD configurations
+└── .github/workflows/      # GitHub Actions workflows
 ```
 
-## Getting Started
+## 📦 Package Details
+
+### Apps
+- **@polyverse/app** - Main Polyverse frontend application
+
+### Services  
+- **@polyverse/opengrid** - OpenGrid server backend
+- **@polyverse/truth-archive** - TruthFoundry archive service
+- **@polyverse/aegisgov** - AegisGov policy engine
+
+### Packages
+- **@polyverse/opengrid-client** - TypeScript client for OpenGrid API
+- **@polyverse/truth-archive-js** - JavaScript client for Truth Archive
+
+## 🚀 Quick Start
 
 ### Prerequisites
+- Node.js 20+
+- pnpm 9+
+- Python 3.10+ (for Python packages)
 
-- Docker
-- Node.js (v16+)
-- Go/Rust (depending on relay implementation)
-
-### Development Setup
-
+### Installation
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/polyverse.git
+# Install all dependencies
+pnpm install
 
-# Navigate to project directory
-cd polyverse
+# Build all packages
+pnpm build
 
-# Start development stack with Docker Compose
-docker-compose up -d
+# Run tests
+pnpm test
 
-# Access web client at http://localhost:3000
+# Start development servers
+pnpm dev
 ```
 
-## Core Components
+### Development
+```bash
+# Work on a specific package
+cd packages/truth-archive
+pip install -r requirements.txt
+python -m pytest
 
-### PolyVerse Protocol (PVP)
-A minimal event layer for signed posts, follows, likes, and other social interactions.
+# Work on the main app
+cd apps/polyverse
+pnpm dev
+```
 
-### Web MVP
-Next.js application supporting keys/profiles/posts/feed with algorithm bundle selection.
+## 🔗 Integration Map
 
-### Relay Service
-Stateless ingress service implemented in Go or Rust that validates signatures and enforces basic policies.
+| Source Repository | Monorepo Path | Status |
+|-------------------|---------------|---------|
+| [lxsolutions/polyverse](https://github.com/lxsolutions/polyverse) | `/apps/polyverse` | ✅ Migrated |
+| [lxsolutions/opengrid](https://github.com/lxsolutions/opengrid) | `/services/opengrid` | ✅ Imported |
+| [lxsolutions/truthfoundry](https://github.com/lxsolutions/truthfoundry) | `/packages/truth-archive` | ✅ Imported |
+| [lxsolutions/aegisgov](https://github.com/lxsolutions/aegisgov) | `/packages/aegisgov` | ✅ Imported |
 
-### AI Mesh
-Distributed inference nodes with microagents for orchestrating retrieval, moderation, ranking, onboarding, payments, etc.
+## 📋 CI/CD
 
-## Contributing
+The monorepo uses GitHub Actions for CI/CD:
 
-Please see [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on contributing to PolyVerse.
+- **Linting**: ESLint, Prettier, and Python linting
+- **Testing**: Unit tests for all packages
+- **Building**: Turbo build pipeline
+- **Deployment**: Docker image builds (when configured)
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+MIT License. See [LICENSE](LICENSE) for details.
+
+Individual packages may have their own license files preserved from original repositories.
+
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+## 🆘 Support
+
+For issues and questions, please open an issue in this repository.
+
+---
+
+**Migration Date**: August 29, 2025  
+**Monorepo Version**: 1.0.0
