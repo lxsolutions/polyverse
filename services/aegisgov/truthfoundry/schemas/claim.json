@@ -1,0 +1,37 @@
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Claim",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "normalized_text": { "type": "string" },
+    "entities": { "type": "array", "items": { "type": "string" } },
+    "topics": { "type": "array", "items": { "type": "string" } },
+    "claim_type": { "type": ["string", "null"] },
+    "time_scope": { "type": ["string", "null"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "hypothesis_id": { "type": ["string", "null"] },
+    "confidence": {
+      "type": "object",
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "band": { "type": "string" },
+        "last_updated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["score", "band"]
+    },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "disagreement_ids": { "type": "array", "items": { "type": "string" } },
+    "depends_on_root_ids": { "type": "array", "items": { "type": "string" } },
+    "conditional_view": { "type": ["string", "null"] },
+    "notes": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 }
+  },
+  "required": [
+    "id", "normalized_text", "created_at", "updated_at",
+    "confidence", "evidence_ids", "depends_on_root_ids"
+  ]
+}
+
