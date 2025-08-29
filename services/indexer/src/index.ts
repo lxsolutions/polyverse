@@ -6,7 +6,7 @@ import { MeiliSearch } from 'meilisearch';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
-import { eventV1Schema } from '@polyverse/schemas';
+import { eventV1Schema, type MeilisearchEventDocument } from '@polyverse/schemas';
 import { getLabels } from './moderation.js';
 import { events } from './db/schema.js';
 import { eq } from 'drizzle-orm';
@@ -89,9 +89,9 @@ async function initializeMeilisearch() {
       console.log(`Created Meilisearch index: ${INDEX_NAME}`);
       
       await meiliClient.index(INDEX_NAME).updateSettings({
-        searchableAttributes: ['body.text', 'author_did', 'kind'],
-        filterableAttributes: ['kind', 'author_did', 'created_at'],
-        sortableAttributes: ['created_at']
+        searchableAttributes: ['search_text', 'author_did', 'kind'],
+        filterableAttributes: ['kind', 'author_did', 'created_at_timestamp'],
+        sortableAttributes: ['created_at_timestamp']
       });
     }
     
@@ -121,7 +121,12 @@ async function processEvent(event: any) {
     
     // Index in Meilisearch if available
     if (useMeilisearch) {
-      await meiliClient.index(INDEX_NAME).addDocuments([validatedEvent]);
+      const searchDoc: MeilisearchEventDocument = {
+        ...validatedEvent,
+        search_text: validatedEvent.body?.text || '',
+        created_at_timestamp: new Date(validatedEvent.created_at * 1000)
+      };
+      await meiliClient.index(INDEX_NAME).addDocuments([searchDoc]);
     }
     
     console.log(`Processed event: ${validatedEvent.id}`);

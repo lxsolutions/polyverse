@@ -35,3 +35,9 @@ export interface CanonicalEventData {
   refs: EventReference[];
 }
 
+export interface MeilisearchEventDocument extends EventV1 {
+  // Additional fields for search optimization
+  search_text?: string;
+  created_at_timestamp: Date;
+}
+
