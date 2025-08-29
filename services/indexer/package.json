@@ -13,16 +13,22 @@
     "migrate": "drizzle-kit migrate",
     "seed": "ts-node scripts/seed-demo.ts"
   },
-  "keywords": ["polyverse", "indexer", "events", "feed"],
+  "keywords": [
+    "polyverse",
+    "indexer",
+    "events",
+    "feed"
+  ],
   "author": "PolyVerse Team",
   "license": "MIT",
   "dependencies": {
     "@fastify/cors": "^10.0.1",
-    "@libsql/client": "^0.13.0",
+    "@types/pg": "^8.15.5",
     "drizzle-orm": "^0.35.0",
     "fastify": "^5.5.0",
     "meilisearch": "^0.52.0",
     "nats": "^2.29.0",
+    "pg": "^8.16.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {

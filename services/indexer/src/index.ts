@@ -3,8 +3,8 @@ import fastify from 'fastify';
 import cors from '@fastify/cors';
 import { connect, StringCodec, JetStreamClient, JetStreamSubscription } from 'nats';
 import { MeiliSearch } from 'meilisearch';
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
 import { eventV1Schema } from '@polyverse/schemas';
 import { getLabels } from './moderation.js';
@@ -24,8 +24,8 @@ const meiliClient = new MeiliSearch({
   host: MEILISEARCH_HOST,
   apiKey: MEILISEARCH_API_KEY,
 });
-const libsqlClient = createClient({ url: DATABASE_URL });
-const db = drizzle(libsqlClient);
+const pool = new Pool({ connectionString: DATABASE_URL });
+const db = drizzle(pool);
 
 const INDEX_NAME = 'events';
 let natsConnection: any = null;

@@ -1,15 +1,15 @@
 
 
-import { sqliteTable, text, integer, blob } from 'drizzle-orm/sqlite-core';
+import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
 
-export const events = sqliteTable('events', {
+export const events = pgTable('events', {
   id: text('id').primaryKey(),
   kind: text('kind').notNull(),
   author_did: text('author_did').notNull(),
   signature: text('signature').notNull(),
-  created_at: integer('created_at', { mode: 'timestamp' }).notNull(),
+  created_at: timestamp('created_at').notNull(),
   content: text('content').notNull(),
-  refs: blob('refs', { mode: 'json' }).$type<string[]>().default([]),
+  refs: jsonb('refs').$type<string[]>().default([]),
 });
 
 export type Event = typeof events.$inferSelect;
