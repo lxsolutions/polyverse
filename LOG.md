@@ -30,4 +30,11 @@ Date: 2025-08-29
 - Services added to existing polyverse monorepo structure
 - README updated to reflect new service additions
 - Polyverse already has comprehensive monorepo structure with existing services
+
 - New services complement existing decentralized social + AI + payments platform
+
+## Deprecation PRs Created
+- opengrid: https://github.com/lxsolutions/opengrid/pull/1
+- aegisgov: https://github.com/lxsolutions/aegisgov/pull/1
+- truthfoundry: Deprecation banner added (part of aegisgov monorepo)
+
