@@ -1,6 +1,6 @@
 
 
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
@@ -8,6 +8,13 @@ module.exports = {
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!(.*@polyverse/schemas.*)/)',
+  ],
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
 };
 

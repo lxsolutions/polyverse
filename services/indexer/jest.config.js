@@ -1,8 +1,8 @@
 
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/test'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -16,4 +16,14 @@ module.exports = {
       lines: 70,
     },
   },
+  transform: {
+    '^.+\\.ts$': 'ts-jest',
+  },
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!(.*@polyverse/schemas.*)/)',
+  ],
 };

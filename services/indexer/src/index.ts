@@ -8,8 +8,8 @@ import { Pool } from 'pg';
 
 import { eventV1Schema, type MeilisearchEventDocument } from '@polyverse/schemas';
 import { getLabels } from './moderation.js';
-import { events } from './db/schema.js';
-import { eq } from 'drizzle-orm';
+import { events, authors } from './db/schema.js';
+import { eq, sql } from 'drizzle-orm';
 
 // Environment variables
 const PORT = process.env.PORT || 3002;
@@ -118,6 +118,22 @@ async function processEvent(event: any) {
       content: JSON.stringify(validatedEvent.body || {}),
       refs: validatedEvent.refs.map(ref => JSON.stringify(ref))
     });
+
+    // Update or create author record
+    await db.insert(authors)
+      .values({
+        did: validatedEvent.author_did,
+        posts_count: 1,
+        reputation_score: 50,
+        created_at: new Date()
+      })
+      .onConflictDoUpdate({
+        target: authors.did,
+        set: {
+          posts_count: sql`${authors.posts_count} + 1`,
+          updated_at: new Date()
+        }
+      });
     
     // Index in Meilisearch if available
     if (useMeilisearch) {
@@ -159,20 +175,47 @@ app.get('/feed', async (request, reply) => {
         .limit(limit)
         .offset(cursor || 0);
     } else if (bundle === 'author_weighted') {
-      // TODO: Implement author weighting algorithm
-      results = await db.select()
+      // Author-weighted algorithm: prioritize posts from authors with higher reputation
+      results = await db.select({
+        id: events.id,
+        kind: events.kind,
+        author_did: events.author_did,
+        signature: events.signature,
+        created_at: events.created_at,
+        content: events.content,
+        refs: events.refs,
+        author_reputation: authors.reputation_score,
+        author_followers: authors.followers_count
+      })
         .from(events)
-        .orderBy(events.created_at)
+        .innerJoin(authors, eq(events.author_did, authors.did))
+        .orderBy(sql`
+          (${authors.reputation_score} * 0.6 + 
+           ${authors.followers_count} * 0.3 + 
+           EXTRACT(EPOCH FROM ${events.created_at}) * 0.1) DESC
+        `)
         .limit(limit)
         .offset(cursor || 0);
     } else if (bundle.startsWith('hashtag:')) {
       const hashtag = bundle.split(':')[1];
-      results = await db.select()
-        .from(events)
-        .where(eq(events.content, `%#${hashtag}%`))
-        .orderBy(events.created_at)
-        .limit(limit)
-        .offset(cursor || 0);
+      
+      if (useMeilisearch) {
+        // Use Meilisearch for better hashtag search
+        const searchResults = await meiliClient.index(INDEX_NAME).search(`#${hashtag}`, {
+          limit,
+          offset: cursor || 0,
+          sort: ['created_at_timestamp:desc']
+        });
+        results = searchResults.hits;
+      } else {
+        // Fallback to database search
+        results = await db.select()
+          .from(events)
+          .where(eq(events.content, `%#${hashtag}%`))
+          .orderBy(events.created_at)
+          .limit(limit)
+          .offset(cursor || 0);
+      }
     }
     
     reply.send(results);
@@ -231,3 +274,5 @@ async function start() {
 }
 
 start();
+
+export { app };

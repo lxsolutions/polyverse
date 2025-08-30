@@ -102,7 +102,8 @@ describe('Event Canonicalization', () => {
       sig: 'signature'
     };
 
-    const canonical = eventV1Schema.omit({ id: true, sig: true }).parse(event);
+    const { id, sig, ...canonicalData } = event;
+    const canonical = eventV1Schema.omit({ id: true, sig: true }).parse(canonicalData);
     expect(canonical).toEqual({
       kind: 'post',
       created_at: 1234567890,
