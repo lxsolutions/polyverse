@@ -5,45 +5,99 @@
 
 
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
+import redis
+import json
+import uuid
+import asyncio
+from typing import Dict, Any
 
 app = FastAPI()
 
-class ChatRequest(BaseModel):
-    model_policy: str
-    input_text: str
+# Redis connection
+redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 
-@app.post("/chat")
-async def chat(request: ChatRequest):
-    """
-    Route chat requests to appropriate AI models based on policy.
-    For now, return a mock response.
-    """
-    if request.model_policy == "cheap":
-        return {"response": f"Cheap model would say: {request.input_text}"}
-    elif request.model_policy == "balanced":
-        return {"response": f"Balanced model would say: {request.input_text}"}
-    elif request.model_policy == "accurate":
-        return {"response": f"Accurate model would say: {request.input_text}"}
+class TaskRequest(BaseModel):
+    task_type: str
+    data: Dict[str, Any]
+    model_policy: str = "balanced"
+
+class TaskResponse(BaseModel):
+    task_id: str
+    status: str
+    result: Dict[str, Any] = None
+
+async def wait_for_task_result(task_id: str, timeout: int = 10) -> Dict[str, Any]:
+    """Wait for task result from Redis pub/sub"""
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(f'task_result_{task_id}')
+    
+    try:
+        for message in pubsub.listen():
+            if message['type'] == 'message':
+                return json.loads(message['data'])
+    except asyncio.TimeoutError:
+        return {"error": "Task timeout"}
+    finally:
+        pubsub.unsubscribe()
+
+@app.post("/task", response_model=TaskResponse)
+async def create_task(request: TaskRequest, background_tasks: BackgroundTasks):
+    """Create a new AI task and dispatch to appropriate agent"""
+    task_id = str(uuid.uuid4())
+    
+    # Dispatch task to appropriate agent channel
+    if request.task_type == "summarization":
+        channel = "summarization_tasks"
+    elif request.task_type == "moderation":
+        channel = "moderation_tasks"
+    elif request.task_type == "onboarding":
+        channel = "onboarding_tasks"
     else:
-        raise HTTPException(status_code=400, detail="Invalid model policy")
+        raise HTTPException(status_code=400, detail=f"Unknown task type: {request.task_type}")
+    
+    # Create task payload
+    task_payload = {
+        "task_id": task_id,
+        "task_type": request.task_type,
+        "model_policy": request.model_policy,
+        **request.data
+    }
+    
+    # Publish task to agent
+    redis_client.publish(channel, json.dumps(task_payload))
+    
+    return TaskResponse(
+        task_id=task_id,
+        status="dispatched",
+        result={"message": f"Task dispatched to {request.task_type} agent"}
+    )
 
-class SummarizeRequest(BaseModel):
-    text: str
+@app.get("/task/{task_id}", response_model=TaskResponse)
+async def get_task_result(task_id: str):
+    """Get result for a specific task"""
+    # Check if result is cached
+    result_key = f"task_result:{task_id}"
+    result = redis_client.get(result_key)
+    
+    if result:
+        return TaskResponse(
+            task_id=task_id,
+            status="completed",
+            result=json.loads(result)
+        )
+    
+    return TaskResponse(
+        task_id=task_id,
+        status="processing",
+        result={"message": "Task still processing"}
+    )
 
-@app.post("/summarize")
-async def summarize(request: SummarizeRequest):
-    """
-    Route summarization requests to appropriate AI models.
-    For now, return a mock summary.
-    """
-    # Mock summarization - in production this would call an actual model
-    words = request.text.split()
-    if len(words) <= 5:
-        return {"summary": request.text}
-    else:
-        return {"summary": " ".join(words[:5]) + "..."}
+# Health check endpoint
+@app.get("/healthz")
+async def health_check():
+    return {"status": "healthy", "service": "ai-router"}
 
 if __name__ == "__main__":
     import uvicorn

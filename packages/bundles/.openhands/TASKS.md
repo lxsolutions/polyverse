@@ -14,7 +14,7 @@
 
 7. ✅ Moderation bundles implementation
 
-8. ✅ AI Mesh bootstrap
+8. ⏳ AI Mesh bootstrap
 
 9. ⏳ Bridges (read-only) implementation
 

@@ -10,17 +10,17 @@
 
 5. ✅ Indexer service enhancements and testing
 
-6. ✅ Web MVP (Next.js) implementation
+6. ⏳ Web MVP (Next.js) implementation
 
-7. ✅ Moderation bundles implementation
+7. ⏳ Moderation bundles implementation
 
-8. ✅ AI Mesh bootstrap
+8. ⏳ AI Mesh bootstrap
 
 9. ⏳ Bridges (read-only) implementation
 
 10. ⏳ Payments facade scaffold
 
-11. ✅ Infrastructure and development experience
+11. ⏳ Infrastructure and development experience
 
 12. ⏳ Documentation and demo materials
 
