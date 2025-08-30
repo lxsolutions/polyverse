@@ -1,18 +1,35 @@
 {
-  "name": "polyverse",
+  "name": "polyverse-monorepo",
   "version": "1.0.0",
-  "description": "PolyVerse is a decentralized social + AI + payments super-app designed for multipolar representation and algorithmic choice. This project aims to build a resilient platform that resists centralized deboosting/censorship by design, empowers user-chosen ranking/moderation bundles, and is economically sustainable for independent operators.",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "description": "PolyVerse monorepo - decentralized social + AI + payments super-app with integrated services",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "clean": "turbo clean"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "node-fetch": "^3.3.2"
-  }
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.6.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.3.0"
+  },
+  "keywords": [
+    "monorepo",
+    "decentralized",
+    "social",
+    "ai",
+    "payments",
+    "polyverse"
+  ],
+  "author": "LX Solutions",
+  "license": "MIT"
 }
